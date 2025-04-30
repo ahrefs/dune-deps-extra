@@ -1,0 +1,4 @@
+(executable
+ (public_name dune-deps-lib-deps-of-bins)
+ (name main)
+ (libraries dune-deps cmdliner))
