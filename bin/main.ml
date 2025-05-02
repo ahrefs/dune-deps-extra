@@ -47,7 +47,9 @@ let find_label_of_id dep graph =
   match Filterable.resolve_name graph dep with
   | [] -> failwith "not found"
   | [name] -> name.label
-  | _ :: _ :: _ -> failwith "found too much"
+  | name :: _ ->
+      (* what to do here?? *)
+      name.label
 
 let find_lib_deps name graph =
   Filter.deps graph [name]
