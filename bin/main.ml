@@ -43,10 +43,17 @@ let to_json r =
   print_string (Buffer.contents b);
   flush stdout
 
+let find_label_of_id dep graph =
+  match Filterable.resolve_name graph dep with
+  | [] -> failwith "not found"
+  | [name] -> name.label
+  | _ :: _ :: _ -> failwith "found too much"
+
 let find_lib_deps name graph =
-  ignore name;
-  ignore graph;
-  []
+  Filter.deps graph [name]
+  |> Filter.no_exe
+  |> Filterable.to_list
+  |> List.map (fun {Filterable.label; _} -> label)
 
 let optimistic_run {roots; exclude; no_ext; deps;} =
   let graph =
@@ -68,7 +75,7 @@ let optimistic_run {roots; exclude; no_ext; deps;} =
   let graph = Filter.deps_or_revdeps graph ~deps ~revdeps:[] in
   let r =
     List.map
-      (fun dep -> (dep, find_lib_deps dep graph))
+      (fun dep -> (find_label_of_id dep graph, find_lib_deps dep graph))
       deps
   in
   to_json r
