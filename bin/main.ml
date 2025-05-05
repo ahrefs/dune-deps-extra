@@ -25,7 +25,8 @@ let to_json_kv b (exename, libnames) =
   Buffer.add_string b exename;
   Buffer.add_string b "\",\"deps\":[";
   to_json_v b libnames;
-  Buffer.add_char b ']'
+  Buffer.add_char b ']';
+  Buffer.add_char b '}'
 
 let rec to_json_kvs b = function
   | [] -> ()
