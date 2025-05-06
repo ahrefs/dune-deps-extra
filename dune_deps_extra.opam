@@ -13,7 +13,7 @@ bug-reports: "https://github.com/ahrefs/dune-deps-extra/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.16"}
-  "dune-deps"
+  "dune-deps" {>= "1.5.0"}
   "cmdliner"
   "odoc" {with-doc}
 ]
