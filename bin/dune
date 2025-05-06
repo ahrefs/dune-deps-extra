@@ -1,4 +1,4 @@
 (executable
- (public_name dune-deps-lib-deps-of-bins)
+ (public_name dune-deps-extra)
  (name main)
  (libraries dune-deps cmdliner))

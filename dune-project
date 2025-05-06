@@ -1,26 +1,24 @@
 (lang dune 3.16)
 
-(name dune_deps_lib_deps_of_bins)
+(name dune_deps_extra)
 
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github ahrefs/dune-deps-extra))
 
-(authors "Author Name")
+(authors "Raphaël Proust")
 
-(maintainers "Maintainer Name")
+(maintainers "Raphaël Proust" "ahrefs")
 
-(license LICENSE)
+(license MIT)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/ahrefs/dune-deps-extra)
 
 (package
- (name dune_deps_lib_deps_of_bins)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml dune)
+ (name dune_deps_extra)
+ (synopsis "Additional commands for dune-deps")
+ (description "dune-deps-extra provides additional ways to query the dependency graph of a dune project")
+ (depends ocaml dune dune-deps cmdliner)
  (tags
-  (topics "to describe" your project)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
+  (topics dune build)))
