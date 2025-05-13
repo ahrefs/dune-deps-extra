@@ -19,6 +19,6 @@
  (name dune_deps_extra)
  (synopsis "Additional commands for dune-deps")
  (description "dune-deps-extra provides additional ways to query the dependency graph of a dune project")
- (depends ocaml dune (dune-deps (>= 1.5.0)) cmdliner)
+ (depends ocaml dune (dune-deps (>= 1.5.0)) cmdliner yojson)
  (tags
   (topics dune build)))

@@ -7,42 +7,17 @@ type config = {
   deps : string list;
 }
 
-let rec to_json_v b = function
-  | [] -> ()
-  | [v] ->
-      Buffer.add_char b '"';
-      Buffer.add_string b v;
-      Buffer.add_char b '"'
-  | v :: ((_ :: _) as vs) ->
-      Buffer.add_char b '"';
-      Buffer.add_string b v;
-      Buffer.add_char b '"';
-      Buffer.add_char b ',';
-      to_json_v b vs
-
-let to_json_kv b (exename, libnames) =
-  Buffer.add_string b "{\"binary\":\"";
-  Buffer.add_string b exename;
-  Buffer.add_string b "\",\"deps\":[";
-  to_json_v b libnames;
-  Buffer.add_char b ']';
-  Buffer.add_char b '}'
-
-let rec to_json_kvs b = function
-  | [] -> ()
-  | [kv] -> to_json_kv b kv
-  | kv :: ((_ :: _) as kvs) ->
-      to_json_kv b kv;
-      Buffer.add_char b ',';
-      to_json_kvs b kvs
-
 let to_json r =
-  let b = Buffer.create 128 in
-  Buffer.add_char b '[';
-  to_json_kvs b r;
-  Buffer.add_char b ']';
-  print_string (Buffer.contents b);
-  flush stdout
+  `List
+    (List.map
+      (fun (b, ls) ->
+        `Assoc
+          [
+            ("bin", `String b);
+            ("libs", `List (List.map (fun l -> `String l) ls))
+          ]
+          )
+      r)
 
 let find_label_of_id dep graph =
   match Filterable.resolve_name graph dep with
@@ -81,7 +56,8 @@ let optimistic_run {roots; exclude; no_ext; deps;} =
       (fun dep -> (find_label_of_id dep graph, find_lib_deps dep graph))
       deps
   in
-  to_json r
+  let r : Yojson.t = to_json r in
+  Yojson.to_file "/dev/stdout" r
 
 let safe_run config =
   try optimistic_run config

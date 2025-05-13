@@ -1,4 +1,4 @@
 (executable
  (public_name dune-deps-extra)
  (name main)
- (libraries dune-deps cmdliner))
+ (libraries dune-deps cmdliner yojson))
