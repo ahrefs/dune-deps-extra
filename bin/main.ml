@@ -1,37 +1,15 @@
-open Dune_deps
+type cmd = Bin_to_libs
 
 type config =
-  { roots : string list
+  { cmd : cmd
+  ; roots : string list
   ; exclude : string list
   ; no_ext : bool
   ; deps : string list
   }
 
-let to_json r =
-  `List
-    (List.map
-       (fun (b, ls) ->
-          `Assoc [ "bin", `String b; "libs", `List (List.map (fun l -> `String l) ls) ])
-       r)
-;;
-
-let find_label_of_id dep graph =
-  match Filterable.resolve_name graph dep with
-  | [] -> failwith "not found"
-  | [ name ] -> name.label
-  | name :: _ ->
-    (* what to do here?? *)
-    name.label
-;;
-
-let find_lib_deps name graph =
-  Filter.deps graph [ name ]
-  |> Filter.no_exe
-  |> Filterable.to_list
-  |> List.map (fun { Filterable.label; _ } -> label)
-;;
-
-let optimistic_run { roots; exclude; no_ext; deps } =
+let optimistic_run { cmd; roots; exclude; no_ext; deps } =
+  let open Dune_deps in
   let graph = Find.find_dune_files roots ~exclude |> Dune.load_files in
   let graph = if no_ext then Filter.no_ext graph else graph in
   let deps =
@@ -43,11 +21,11 @@ let optimistic_run { roots; exclude; no_ext; deps } =
     | _ :: _ -> deps
   in
   let graph = Filter.deps_or_revdeps graph ~deps ~revdeps:[] in
-  let r =
-    List.map (fun dep -> find_label_of_id dep graph, find_lib_deps dep graph) deps
+  let json =
+    match cmd with
+    | Bin_to_libs -> Bin_to_libs.bin_to_libs deps graph
   in
-  let r : Yojson.t = to_json r in
-  Yojson.to_file "/dev/stdout" r
+  Yojson.to_file "/dev/stdout" json
 ;;
 
 let safe_run config =
@@ -63,6 +41,18 @@ let safe_run config =
 (* cmdline definitions *)
 open Cmdliner
 
+let cmd_term =
+  let info =
+    Arg.info
+      []
+      ~docv:"CMD"
+      ~doc:
+        "The $(docv) to run: bin-to-libs shows map of dependencies from binaries to \
+         libraries."
+  in
+  Arg.required (Arg.pos 0 (Arg.enum [ "bin-to-libs", Some Bin_to_libs ]) None info)
+;;
+
 let roots_term =
   let info =
     Arg.info
@@ -73,7 +63,7 @@ let roots_term =
          recursively, or simply a 'dune' file. Multiple $(docv) arguments are supported. \
          If no $(docv) is specified, the current folder is used."
   in
-  Arg.value (Arg.pos_all Arg.file [ "." ] info)
+  Arg.value (Arg.pos_right 0 Arg.file [ "." ] info)
 ;;
 
 let exclude_term =
@@ -99,8 +89,8 @@ let deps_term =
 ;;
 
 let cmdline_term =
-  let combine roots exclude no_ext deps = { roots; exclude; no_ext; deps } in
-  Term.(const combine $ roots_term $ exclude_term $ no_ext_term $ deps_term)
+  let combine cmd roots exclude no_ext deps = { cmd; roots; exclude; no_ext; deps } in
+  Term.(const combine $ cmd_term $ roots_term $ exclude_term $ no_ext_term $ deps_term)
 ;;
 
 let doc = "extract a list of dependency for a target in a dune project"
