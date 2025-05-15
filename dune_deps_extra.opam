@@ -6,7 +6,7 @@ description:
 maintainer: ["Raphaël Proust" "ahrefs"]
 authors: ["Raphaël Proust"]
 license: "MIT"
-tags: ["topics" "dune" "build"]
+tags: ["dune" "build"]
 homepage: "https://github.com/ahrefs/dune-deps-extra"
 doc: "https://github.com/ahrefs/dune-deps-extra"
 bug-reports: "https://github.com/ahrefs/dune-deps-extra/issues"
